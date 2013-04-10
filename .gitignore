@@ -1,0 +1,14 @@
+*.class
+*.bak
+*.iml
+*.ipr
+.iws
+*.log
+.DS_Store
+*~
+.settings/
+.gradle/
+.idea/
+build/
+out/
+target/

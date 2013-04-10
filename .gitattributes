@@ -1,0 +1,25 @@
+# Set default behaviour, in case users don't have core.autocrlf set.
+* text=auto
+
+# Explicitly declare text files we want to always be normalized and converted
+# to native line endings on checkout.
+
+*.properties text
+*.java text
+*.md text
+*.txt text
+*.json text
+*.xml text
+*.sql text
+*.wsdl text
+*.xsd text
+
+# Declare files that will always have CRLF line endings on checkout.
+*.cmd text eol=crlf
+
+# Binaries
+
+*.mwb binary
+*.odt binary
+*.jar binary
+*.war binary

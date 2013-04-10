@@ -1,0 +1,76 @@
+
+apply plugin: 'java'
+
+
+repositories {
+    maven {
+        url "https://nexus.nspop.dk/nexus/content/groups/public"
+    }
+    maven {
+        url "http://repo.springsource.org/release"
+    }
+    mavenCentral()
+}
+
+configurations {
+    jaxws
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.5'
+}
+
+//##########################################################################
+//# WSDL Compilation
+//##########################################################################
+def wsdlSourceDestDir = file("src/generated/java")
+task wsimport(dependsOn: processResources)  {
+	ext.inputWsdl = 'src/main/resources/wsdl/Authorization.wsdl'
+	doLast{
+		ant {
+			sourceSets.main.output.classesDir.mkdirs()
+			wsdlSourceDestDir.mkdirs()			
+			taskdef(name:'wsimport',
+					classname:'com.sun.tools.ws.ant.WsImport',
+					classpath:configurations.jaxws.asPath)
+			wsimport(keep:true,
+					destdir: sourceSets.main.output.classesDir,
+					package: 'com.trifork.saes.jaxws.generated',
+					sourcedestdir: wsdlSourceDestDir,
+					wsdl: inputWsdl)
+		}
+	}
+}
+wsimport.onlyIf { !(wsdlSourceDestDir.exists()) }
+compileJava.dependsOn(wsimport)
+sourceSets {
+    main {
+        java {
+            srcDir wsdlSourceDestDir
+        }
+    }
+}
+
+//##########################################################################
+//# Dependencies
+//##########################################################################
+
+dependencies {
+	jaxws group: 'com.sun.xml.ws', name: 'jaxws-tools', version:'2.1.7'
+    compile(
+            [group: 'commons-io',             name: 'commons-io',           version: '2.4'],
+            //# Spring
+            [group: 'org.springframework',    name: 'spring-context',       version: '3.2.2.RELEASE'],
+            //# Seal requirements
+            [group: 'dk.sosi.seal',           name: 'seal',                 version: '2.1.6'],
+            [group: 'axis',                   name: 'axis',                 version: '1.4'],
+            [group: 'com.unboundid',          name: 'unboundid-ldapsdk',    version: '2.2.0'],
+            [group: 'commons-codec',          name: 'commons-codec',        version: '1.5'],
+            [group: 'commons-httpclient',     name: 'commons-httpclient',   version: '3.1'],
+            [group: 'commons-logging',        name: 'commons-logging',      version: '1.1.1'],
+            [group: 'org.apache.santuario',   name: 'xmlsec',               version: '1.4.5'],
+            [group: 'org.apache.ws.security', name: 'wss4j',                version: '1.5.12'],
+            [group: 'org.bouncycastle',       name: 'bcprov-jdk16',         version: '1.46'],
+            [group: 'xalan',                  name: 'xalan',                version: '2.7.1']
+    )
+}
